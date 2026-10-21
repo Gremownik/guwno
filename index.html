@@ -2,41 +2,104 @@
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0a0e24">
   <title>Slajdy</title>
 
   <style>
-    /* Minimalne style niezbędne do działania i czytelności */
+    /* ==========================================================
+       ZMIENNE: kolory i parametry w jednym miejscu,
+       żeby łatwo było je później zmieniać
+       ========================================================== */
+    :root {
+      --bg: #0a0e24;
+      --text: #ece9f8;
+      --accent: #c4b5fd;
+      --surface: rgba(255, 255, 255, 0.035);
+      --border: rgba(190, 180, 255, 0.16);
+      --border-inner: rgba(255, 255, 255, 0.05);
+      --page-padding: clamp(0.75rem, 3.5vw, 2.5rem);
+
+      /* Czcionki systemowe: bez zewnętrznych zależności */
+      --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
     * {
       box-sizing: border-box;
     }
 
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      color: #111;
-      background: #fff;
+    html {
+      background-color: var(--bg);
+      -webkit-text-size-adjust: 100%;
     }
 
-    /* Kontener centrujący aktualny slajd na ekranie */
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: var(--font-ui);
+      overflow-x: hidden; /* brak poziomego paska przewijania */
+    }
+
+    /* Tło: głęboki granat z bardzo delikatnym fioletowym światłem.
+       Pseudo-element jest przypięty do okna, więc działa też na telefonach. */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background:
+        radial-gradient(60rem 42rem at 12% 8%, rgba(124, 92, 214, 0.22), transparent 62%),
+        radial-gradient(52rem 40rem at 92% 96%, rgba(66, 88, 196, 0.2), transparent 62%),
+        linear-gradient(160deg, #0b1030 0%, #0a0d22 55%, #0d0a26 100%);
+    }
+
+    /* ==========================================================
+       UKŁAD: kontener wyśrodkowujący aktualny slajd
+       ========================================================== */
     main {
       min-height: 100vh;
       min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
+      padding: var(--page-padding);
     }
 
-    /* Pojedynczy slajd: zawartość ułożona pionowo, wyśrodkowana */
+    /* ==========================================================
+       SLAJD: prawie pełnoekranowa, półprzezroczysta powierzchnia
+       z delikatną ramką
+       ========================================================== */
     .slide {
+      position: relative;
       width: 100%;
-      max-width: 40rem;
+      max-width: 64rem;
+      min-height: calc(100vh - 2 * var(--page-padding));
+      min-height: calc(100dvh - 2 * var(--page-padding));
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 1.5rem;
+      justify-content: center;
+      gap: clamp(2rem, 7vh, 3.5rem);
+      padding: clamp(2rem, 6vw, 4rem) clamp(1.25rem, 5vw, 3rem);
       text-align: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: clamp(1.25rem, 3vw, 2rem);
+      box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.65);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Druga, bardzo subtelna ramka wewnątrz slajdu */
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: clamp(0.5rem, 1.4vw, 0.9rem);
+      border: 1px solid var(--border-inner);
+      border-radius: clamp(0.85rem, 2.2vw, 1.4rem);
+      pointer-events: none;
     }
 
     /* Gwarantuje, że atrybut hidden zawsze ukrywa slajd */
@@ -44,23 +107,95 @@
       display: none;
     }
 
-    .slide-text {
-      margin: 0;
-      font-size: clamp(1.5rem, 6vw, 2.5rem);
+    /* Slajd 3 otrzymuje fokus programowo (nie ma przycisku),
+       więc nie potrzebuje widocznej obwódki */
+    .slide:focus {
+      outline: none;
     }
 
+    /* Płynne pojawianie się slajdu po jego pokazaniu */
+    .slide:not([hidden]) {
+      animation: slide-in 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    }
+
+    @keyframes slide-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ==========================================================
+       TYPOGRAFIA
+       ========================================================== */
+    .slide-text {
+      margin: 0;
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: clamp(2.25rem, 8vw, 4.75rem);
+      line-height: 1.15;
+      letter-spacing: 0.01em;
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+
+    /* ==========================================================
+       PRZYCISK: minimalistyczny, kształt pigułki
+       ========================================================== */
     button {
-      min-width: 8rem;
-      min-height: 2.75rem; /* wygodny rozmiar dla dotyku */
-      padding: 0.5rem 1.5rem;
-      font: inherit;
+      min-width: 9.5rem;
+      min-height: 3rem; /* wygodny rozmiar dla palca */
+      padding: 0.75rem 2.25rem;
+      font-family: var(--font-ui);
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      background: rgba(196, 181, 253, 0.06);
+      border: 1px solid rgba(196, 181, 253, 0.38);
+      border-radius: 999px;
       cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
+    }
+
+    button:hover {
+      background: rgba(196, 181, 253, 0.14);
+      border-color: rgba(196, 181, 253, 0.65);
+    }
+
+    button:active {
+      transform: scale(0.98);
     }
 
     /* Wyraźny wskaźnik fokusu dla nawigacji klawiaturą */
     button:focus-visible {
-      outline: 3px solid #1a5fb4;
-      outline-offset: 3px;
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    /* Mniejsze telefony */
+    @media (max-width: 360px) {
+      button {
+        min-width: 8.5rem;
+        padding-inline: 1.75rem;
+      }
+    }
+
+    /* Szanujemy systemowe ustawienie ograniczenia animacji */
+    @media (prefers-reduced-motion: reduce) {
+      .slide:not([hidden]) {
+        animation: none;
+      }
+
+      button {
+        transition: none;
+      }
     }
   </style>
 </head>
@@ -68,24 +203,23 @@
   <main>
 
     <!-- SLAJD 1 -->
-    <section class="slide" id="slide-1" aria-label="Slajd 1 z 3">
+    <section class="slide" id="slide-1" aria-label="Slajd 1 z 3" tabindex="-1">
       <p class="slide-text">Pierwszy slajd</p>
       <!-- Tutaj możesz później dodać własne teksty, zdjęcia, muzykę i inne elementy -->
       <button type="button" data-goto="2">Dalej</button>
     </section>
 
     <!-- SLAJD 2 -->
-    <section class="slide" id="slide-2" aria-label="Slajd 2 z 3" hidden>
+    <section class="slide" id="slide-2" aria-label="Slajd 2 z 3" tabindex="-1" hidden>
       <p class="slide-text">Drugi slajd</p>
       <!-- Tutaj możesz później dodać własne teksty, zdjęcia, muzykę i inne elementy -->
       <button type="button" data-goto="3">Dalej</button>
     </section>
 
-    <!-- SLAJD 3 -->
-    <section class="slide" id="slide-3" aria-label="Slajd 3 z 3" hidden>
+    <!-- SLAJD 3 (ostatni: celowo bez żadnego przycisku nawigacyjnego) -->
+    <section class="slide" id="slide-3" aria-label="Slajd 3 z 3" tabindex="-1" hidden>
       <p class="slide-text">Trzeci slajd</p>
       <!-- Tutaj możesz później dodać własne teksty, zdjęcia, muzykę i inne elementy -->
-      <button type="button" data-goto="2">Wróć</button>
     </section>
 
   </main>
@@ -95,25 +229,37 @@
     const slides = document.querySelectorAll(".slide");
     const buttons = document.querySelectorAll("button[data-goto]");
 
+    // Czas ostatniej zmiany slajdu (ochrona przed przypadkowym podwójnym kliknięciem)
+    let lastChange = 0;
+
     // Pokazuje wskazany slajd (numer od 1) i ukrywa pozostałe
     function showSlide(number, moveFocus) {
       slides.forEach(function (slide, index) {
         slide.hidden = (index + 1 !== number);
       });
 
-      // Po zmianie slajdu fokus trafia na przycisk nowego slajdu,
-      // dzięki czemu użytkownik klawiatury może od razu kontynuować
+      // Po zmianie slajdu przenosimy fokus, aby użytkownik klawiatury
+      // i czytnika ekranu nie "zgubił się" po ukryciu poprzedniego slajdu.
+      // Jeśli slajd ma przycisk, fokus trafia na niego,
+      // w przeciwnym razie (ostatni slajd) na sam slajd.
       if (moveFocus) {
-        const activeButton = slides[number - 1].querySelector("button");
-        if (activeButton) {
-          activeButton.focus();
-        }
+        const current = slides[number - 1];
+        const target = current.querySelector("button") || current;
+        target.focus({ preventScroll: true });
       }
     }
 
     // Każdy przycisk przechodzi do slajdu podanego w atrybucie data-goto
     buttons.forEach(function (button) {
       button.addEventListener("click", function () {
+        // Ignorujemy kliknięcia tuż po zmianie slajdu,
+        // dzięki czemu szybkie dwukrotne kliknięcie nie przeskoczy dwóch slajdów
+        const now = Date.now();
+        if (now - lastChange < 600) {
+          return;
+        }
+        lastChange = now;
+
         showSlide(Number(button.dataset.goto), true);
       });
     });
