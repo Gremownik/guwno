@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Slajdy</title>
+
+  <style>
+    /* Minimalne style niezbędne do działania i czytelności */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      color: #111;
+      background: #fff;
+    }
+
+    /* Kontener centrujący aktualny slajd na ekranie */
+    main {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    /* Pojedynczy slajd: zawartość ułożona pionowo, wyśrodkowana */
+    .slide {
+      width: 100%;
+      max-width: 40rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      text-align: center;
+    }
+
+    /* Gwarantuje, że atrybut hidden zawsze ukrywa slajd */
+    .slide[hidden] {
+      display: none;
+    }
+
+    .slide-text {
+      margin: 0;
+      font-size: clamp(1.5rem, 6vw, 2.5rem);
+    }
+
+    button {
+      min-width: 8rem;
+      min-height: 2.75rem; /* wygodny rozmiar dla dotyku */
+      padding: 0.5rem 1.5rem;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    /* Wyraźny wskaźnik fokusu dla nawigacji klawiaturą */
+    button:focus-visible {
+      outline: 3px solid #1a5fb4;
+      outline-offset: 3px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+
+    <!-- SLAJD 1 -->
+    <section class="slide" id="slide-1" aria-label="Slajd 1 z 3">
+      <p class="slide-text">Pierwszy slajd</p>
+      <!-- Tutaj możesz później dodać własne teksty, zdjęcia, muzykę i inne elementy -->
+      <button type="button" data-goto="2">Dalej</button>
+    </section>
+
+    <!-- SLAJD 2 -->
+    <section class="slide" id="slide-2" aria-label="Slajd 2 z 3" hidden>
+      <p class="slide-text">Drugi slajd</p>
+      <!-- Tutaj możesz później dodać własne teksty, zdjęcia, muzykę i inne elementy -->
+      <button type="button" data-goto="3">Dalej</button>
+    </section>
+
+    <!-- SLAJD 3 -->
+    <section class="slide" id="slide-3" aria-label="Slajd 3 z 3" hidden>
+      <p class="slide-text">Trzeci slajd</p>
+      <!-- Tutaj możesz później dodać własne teksty, zdjęcia, muzykę i inne elementy -->
+      <button type="button" data-goto="2">Wróć</button>
+    </section>
+
+  </main>
+
+  <script>
+    // Pobranie wszystkich slajdów i przycisków nawigacji
+    const slides = document.querySelectorAll(".slide");
+    const buttons = document.querySelectorAll("button[data-goto]");
+
+    // Pokazuje wskazany slajd (numer od 1) i ukrywa pozostałe
+    function showSlide(number, moveFocus) {
+      slides.forEach(function (slide, index) {
+        slide.hidden = (index + 1 !== number);
+      });
+
+      // Po zmianie slajdu fokus trafia na przycisk nowego slajdu,
+      // dzięki czemu użytkownik klawiatury może od razu kontynuować
+      if (moveFocus) {
+        const activeButton = slides[number - 1].querySelector("button");
+        if (activeButton) {
+          activeButton.focus();
+        }
+      }
+    }
+
+    // Każdy przycisk przechodzi do slajdu podanego w atrybucie data-goto
+    buttons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        showSlide(Number(button.dataset.goto), true);
+      });
+    });
+
+    // Stan początkowy: widoczny tylko pierwszy slajd
+    showSlide(1, false);
+  </script>
+</body>
+</html>
